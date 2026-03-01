@@ -47,10 +47,38 @@ def university_connections():
 
 @app.get("/patient/did")
 def get_patient_did():
-    res = requests.get(f"{PATIENT_AGENT}/wallet/did/public")
-    return res.json()
+    try:
+        r = requests.get(f"{PATIENT_AGENT}/wallet/did/public", timeout=5)
+        return r.json()
+    except Exception as e:
+        return {"error": f"Patient agent not available: {str(e)}"}
 
 @app.get("/patient/connections")
-def patient_connections():
-    res = requests.get(f"{PATIENT_AGENT}/connections")
+def get_patient_connections():
+    try:
+        r = requests.get(f"{PATIENT_AGENT}/connections", timeout=5)
+        return r.json()
+    except Exception as e:
+        return {"error": f"Patient agent not available: {str(e)}"}
+
+@app.post("/university/receive-invitation")
+def university_receive_invitation(invitation: dict):
+    res = requests.post(
+        f"{UNIVERSITY_AGENT}/connections/receive-invitation",
+        json=invitation
+    )
+    return res.json()
+
+@app.post("/university/accept-invitation/{connection_id}")
+def university_accept_invitation(connection_id: str):
+    res = requests.post(
+        f"{UNIVERSITY_AGENT}/connections/{connection_id}/accept-invitation"
+    )
+    return res.json()
+
+@app.post("/doctor/accept-request/{connection_id}")
+def doctor_accept_request(connection_id: str):
+    res = requests.post(
+        f"{DOCTOR_AGENT}/connections/{connection_id}/accept-request"
+    )
     return res.json()
